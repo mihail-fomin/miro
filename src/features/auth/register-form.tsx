@@ -12,7 +12,8 @@ import { Button } from "@/shared/ui/kit/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const loginSchema = z.object({
+const registerSchema = z
+.object({
   email: z
     .string({
       required_error: "Email обязателен",
@@ -24,11 +25,18 @@ const loginSchema = z.object({
       required_error: "Пароль обязателен",
     })
     .min(6, "Пароль должен быть не менее 6 символов"),
-});
 
-export function LoginForm() {
+    confirmPassword: z.string().optional(),
+})
+.refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Пароли не совпадают",
+})
+
+
+export function RegisterForm() {
   const form = useForm({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -70,7 +78,21 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Войти</Button>
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <Input type="password" {...field} />
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Зарегистрироваться</Button>
       </form>
     </Form>
   );
