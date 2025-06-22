@@ -1,15 +1,22 @@
-import { Link } from "react-router-dom";
-import { AuthLayout } from "./auth-layout";
-import { ROUTES } from "@/shared/model/routes";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/shared/ui/kit/card";
 
 function LoginPage() {
+    // const loginMutation = rqClient.useMutation('post', '/auth/login')
 
-  return <AuthLayout
-    title="Вход в систему"
-    description="Введите ваш email и пароль для входа в систему"
-    footerText={<>Нет аккаунта? <Link to={ROUTES.REGISTER}>Зарегистрироваться</Link></>}
-    form={<form></form>}
-  />;
+    // loginMutation.mutate({
+    //     email: 'test@test.com',
+    //     password: 'test',
+    // })
+  return <main className="grow flex flex-col pt-[200px] items-center">
+    <Card className="w-full max-w-[400px]">
+        <CardHeader>
+            <CardTitle>Вход в систему</CardTitle>
+            <CardDescription>
+                    CardDescription
+            </CardDescription>
+        </CardHeader>
+    </Card>
+  </main>;
 }
 
 export const Component = LoginPage;
