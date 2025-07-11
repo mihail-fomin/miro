@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/shared/ui/kit/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLogin } from "../model/use-login";
 
 const loginSchema = z.object({
   email: z
@@ -35,8 +36,10 @@ export function LoginForm() {
     },
   });
 
+  const { login, isPending, errorMessage } = useLogin();
+
   const onSubmit = form.handleSubmit((data) => {
-    console.log(data);
+    login(data);
   });
 
   return (
@@ -74,7 +77,13 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Войти</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Загрузка..." : "Войти"}
+        </Button>
+
+        {errorMessage && (
+          <p className="text-destructive text-sm">{errorMessage}</p>
+        )}
       </form>
     </Form>
   );

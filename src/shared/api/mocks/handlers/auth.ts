@@ -1,7 +1,6 @@
 import type { ApiSchemas } from "../../schema";
 import { http } from "../http";
-import { HttpResponse } from "msw";
-import type { ApiSchemas } from "../../schema";
+import { delay, HttpResponse } from "msw";
 
 const mockUsers: ApiSchemas["User"][] = [
   {
