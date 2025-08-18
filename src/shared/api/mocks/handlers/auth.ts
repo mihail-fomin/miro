@@ -1,7 +1,11 @@
 import type { ApiSchemas } from "../../schema";
 import { http } from "../http";
 import { delay, HttpResponse } from "msw";
-import { createRefreshTokenCookie, generateTokens, verifyToken } from "../session";
+import {
+  createRefreshTokenCookie,
+  generateTokens,
+  verifyToken,
+} from "../session";
 
 const mockUsers: ApiSchemas["User"][] = [
   {
@@ -40,7 +44,7 @@ export const authHandlers = [
         accessToken,
         user,
       },
-        {
+      {
         status: 200,
         headers: {
           "Set-Cookie": createRefreshTokenCookie(refreshToken),
@@ -63,7 +67,6 @@ export const authHandlers = [
         { status: 400 },
       );
     }
-
 
     const newUser: ApiSchemas["User"] = {
       id: String(mockUsers.length + 1),
@@ -93,53 +96,55 @@ export const authHandlers = [
   }),
 
   http.post("/auth/refresh", async ({ cookies }) => {
-    const refreshToken = cookies.refreshToken
+    const refreshToken = cookies.refreshToken;
 
     if (!refreshToken) {
       return HttpResponse.json(
         {
-            message: "Refresh token not found",
-            code: "REFRESH_TOKEN_NOT_FOUND"
+          message: "Refresh token not found",
+          code: "REFRESH_TOKEN_NOT_FOUND",
         },
         { status: 401 },
       );
     }
 
     try {
-        const session = await verifyToken(refreshToken)
-        const user = mockUsers.find((u) => u.id === session.userId)
+      const session = await verifyToken(refreshToken);
+      const user = mockUsers.find((u) => u.id === session.userId);
 
-        if (!user) {
-            return HttpResponse.json(
-                { message: "User not found",
-                    code: "USER_NOT_FOUND"
-                },
-                { status: 404 }
-            )
-        }
-
-        const { accessToken, refreshToken: newRefreshToken } = await generateTokens({
-            userId: user.id,
-            email: user.email,
-        })
-        
-        return HttpResponse.json({
-            accessToken,
-            user,
-        }, {
-            status: 200,
-            headers: {
-                "Set-Cookie": createRefreshTokenCookie(newRefreshToken),
-            },
-        })
-    } catch (error) {
+      if (!user) {
         return HttpResponse.json(
-            {
-                message: "Invalid refresh token",
-                code: "INVALID_REFRESH_TOKEN",
-            },
-            { status: 401 },
+          { message: "User not found", code: "USER_NOT_FOUND" },
+          { status: 404 },
         );
+      }
+
+      const { accessToken, refreshToken: newRefreshToken } =
+        await generateTokens({
+          userId: user.id,
+          email: user.email,
+        });
+
+      return HttpResponse.json(
+        {
+          accessToken,
+          user,
+        },
+        {
+          status: 200,
+          headers: {
+            "Set-Cookie": createRefreshTokenCookie(newRefreshToken),
+          },
+        },
+      );
+    } catch (error) {
+      return HttpResponse.json(
+        {
+          message: "Invalid refresh token",
+          code: "INVALID_REFRESH_TOKEN",
+        },
+        { status: 401 },
+      );
     }
   }),
 ];

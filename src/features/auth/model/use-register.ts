@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 export function useRegister() {
   const navigate = useNavigate();
 
-    const session = useSession()
+  const session = useSession();
 
   const registerMutation = rqClient.useMutation("post", "/auth/register", {
     onSuccess: (data) => {
