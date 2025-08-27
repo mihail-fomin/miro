@@ -9,12 +9,16 @@ export function useRegister() {
 
   const session = useSession();
 
-  const registerMutation = publicRqClient.useMutation("post", "/auth/register", {
-    onSuccess: (data) => {
-      session.login(data.accessToken);
-      navigate(ROUTES.HOME);
+  const registerMutation = publicRqClient.useMutation(
+    "post",
+    "/auth/register",
+    {
+      onSuccess: (data) => {
+        session.login(data.accessToken);
+        navigate(ROUTES.HOME);
+      },
     },
-  });
+  );
 
   const register = (data: ApiSchemas["RegisterRequest"]) => {
     registerMutation.mutate({ body: data });

@@ -6,7 +6,6 @@ import { enableMocking } from "@/shared/api/mocks";
 export function ProtectedRoute() {
   const { session } = useSession();
 
-  console.log("session: ", session);
   if (!session) {
     return <Navigate to={ROUTES.LOGIN} />;
   }

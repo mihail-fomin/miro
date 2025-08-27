@@ -31,7 +31,7 @@ fetchClient.use({
         {
           status: 401,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
   },
