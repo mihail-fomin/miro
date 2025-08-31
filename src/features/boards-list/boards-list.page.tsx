@@ -20,18 +20,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/kit/tabs";
 import type { ApiSchemas } from "@/shared/api/schema";
 import { useBoardsList } from "./use-boards-list";
 import { useBoardsListFilters } from "./use-boards-list-filters";
+import { useDebounce } from "@/shared/lib/react";
 
 type BoardsSortOption = "createdAt" | "updatedAt" | "lastOpenedAt" | "name";
 
 function BoardsListPage() {
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<BoardsSortOption>("lastOpenedAt");
 
   const boardsListFilters = useBoardsListFilters();
   const boardsQuery = useBoardsList({
         sort: boardsListFilters.sort,
-        search: boardsListFilters.search,
+        search: useDebounce(boardsListFilters.search, 300),
     });
 
   const createBoardMutation = rqClient.useMutation("post", "/boards", {
