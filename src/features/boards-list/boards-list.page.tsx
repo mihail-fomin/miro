@@ -22,6 +22,7 @@ import { useBoardsList } from "./use-boards-list";
 import { useBoardsListFilters } from "./use-boards-list-filters";
 import { useDebounce } from "@/shared/lib/react";
 import { useCreateBoard } from "./use-create-board";
+import { useDeleteBoard } from "./use-delete-board";
 
 type BoardsSortOption = "createdAt" | "updatedAt" | "lastOpenedAt" | "name";
 
@@ -36,17 +37,7 @@ function BoardsListPage() {
 
   const createBoardMutation = useCreateBoard();
 
-  const deleteBoardMutation = rqClient.useMutation(
-    "delete",
-    "/boards/{boardId}",
-    {
-      onSettled: async () => {
-        await queryClient.invalidateQueries(
-          rqClient.queryOptions("get", "/boards"),
-        );
-      },
-    },
-  );
+  const deleteBoardMutation = useDeleteBoard();
 
   const toggleFavoriteMutation = rqClient.useMutation(
     "put",
@@ -155,11 +146,9 @@ function BoardsListPage() {
                 <CardFooter>
                   <Button
                     variant="destructive"
-                    disabled={deleteBoardMutation.isPending}
+                    disabled={deleteBoardMutation.getIsPending(board.id)}
                     onClick={() =>
-                      deleteBoardMutation.mutate({
-                        params: { path: { boardId: board.id } },
-                      })
+                      deleteBoardMutation.deleteBoardMutation(board.id)
                     }
                   >
                     Удалить
