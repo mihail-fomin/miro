@@ -21,6 +21,7 @@ import type { ApiSchemas } from "@/shared/api/schema";
 import { useBoardsList } from "./use-boards-list";
 import { useBoardsListFilters } from "./use-boards-list-filters";
 import { useDebounce } from "@/shared/lib/react";
+import { useCreateBoard } from "./use-create-board";
 
 type BoardsSortOption = "createdAt" | "updatedAt" | "lastOpenedAt" | "name";
 
@@ -29,17 +30,11 @@ function BoardsListPage() {
 
   const boardsListFilters = useBoardsListFilters();
   const boardsQuery = useBoardsList({
-        sort: boardsListFilters.sort,
-        search: useDebounce(boardsListFilters.search, 300),
-    });
-
-  const createBoardMutation = rqClient.useMutation("post", "/boards", {
-    onSettled: async () => {
-      await queryClient.invalidateQueries(
-        rqClient.queryOptions("get", "/boards"),
-      );
-    },
+    sort: boardsListFilters.sort,
+    search: useDebounce(boardsListFilters.search, 300),
   });
+
+  const createBoardMutation = useCreateBoard();
 
   const deleteBoardMutation = rqClient.useMutation(
     "delete",
@@ -92,7 +87,9 @@ function BoardsListPage() {
           <Label htmlFor="sort">Сортировка</Label>
           <Select
             value={boardsListFilters.sort}
-            onValueChange={(value) => boardsListFilters.setSort(value as BoardsSortOption)}
+            onValueChange={(value) =>
+              boardsListFilters.setSort(value as BoardsSortOption)
+            }
           >
             <SelectTrigger id="sort" className="w-full">
               <SelectValue placeholder="Сортировка" />
@@ -108,26 +105,13 @@ function BoardsListPage() {
       </div>
 
       <div className="mb-8">
-        <form
-          className="flex gap-4 items-end"
-          onSubmit={(e) => {
-            e.preventDefault();
-            createBoardMutation.mutate({});
-            e.currentTarget.reset();
-          }}
+        <Button
+          type="submit"
+          disabled={createBoardMutation.isPending}
+          onClick={createBoardMutation.createBoardMutation}
         >
-          <div className="flex-grow">
-            <Label htmlFor="board-name">Название новой доски</Label>
-            <Input
-              id="board-name"
-              name="name"
-              placeholder="Введите название..."
-            />
-          </div>
-          <Button type="submit" disabled={createBoardMutation.isPending}>
-            Создать доску
-          </Button>
-        </form>
+          Создать доску
+        </Button>
       </div>
 
       {boardsQuery.isPending ? (
