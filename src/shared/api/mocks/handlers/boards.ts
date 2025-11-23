@@ -197,7 +197,7 @@ export const boardsHandlers = [
     return HttpResponse.json(board, { status: 201 });
   }),
 
-  http.put("/boards/{boardId}/favorite", async ({ params, request }) => {
+  http.put("/boards/{boardId}/favourite", async ({ params, request }) => {
     await verifyTokenOrThrow(request);
     const { boardId } = params;
     const board = boards.find((board) => board.id === boardId);

@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { rqClient } from "@/shared/api/instance";
+
 import { CONFIG } from "@/shared/model/config";
 import { ROUTES } from "@/shared/model/routes";
 import { Button } from "@/shared/ui/kit/button";
 import { Card, CardFooter, CardHeader } from "@/shared/ui/kit/card";
-import { useQueryClient } from "@tanstack/react-query";
+
 import { Link, href } from "react-router-dom";
 import { Input } from "@/shared/ui/kit/input";
 import { Label } from "@/shared/ui/kit/label";
@@ -16,18 +15,18 @@ import {
   SelectValue,
 } from "@/shared/ui/kit/select";
 import { Switch } from "@/shared/ui/kit/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/kit/tabs";
+
 import type { ApiSchemas } from "@/shared/api/schema";
 import { useBoardsList } from "./use-boards-list";
 import { useBoardsListFilters } from "./use-boards-list-filters";
 import { useDebounce } from "@/shared/lib/react";
 import { useCreateBoard } from "./use-create-board";
 import { useDeleteBoard } from "./use-delete-board";
+import { useUpdateFavourite } from "./use-update-favourite";
 
 type BoardsSortOption = "createdAt" | "updatedAt" | "lastOpenedAt" | "name";
 
 function BoardsListPage() {
-  const queryClient = useQueryClient();
 
   const boardsListFilters = useBoardsListFilters();
   const boardsQuery = useBoardsList({
@@ -39,24 +38,12 @@ function BoardsListPage() {
 
   const deleteBoardMutation = useDeleteBoard();
 
-  const toggleFavoriteMutation = rqClient.useMutation(
-    "put",
-    "/boards/{boardId}/favorite",
-    {
-      onSettled: async () => {
-        await queryClient.invalidateQueries(
-          rqClient.queryOptions("get", "/boards"),
-        );
-      },
-    },
-  );
+  const { toggle } = useUpdateFavourite();
 
   const handleToggleFavorite = (board: ApiSchemas["Board"]) => {
-    toggleFavoriteMutation.mutate({
-      params: { path: { boardId: board.id } },
-      body: { isFavorite: !board.isFavorite },
-    });
+    toggle({id: board.id, isFavorite: board.isFavorite});
   };
+
 
   return (
     <div className="container mx-auto p-4">
